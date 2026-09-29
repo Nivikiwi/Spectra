@@ -70,7 +70,7 @@ Large data files are excluded from this repository (see `.gitignore`). To reprod
 1. Put the pulse dataset at `SmartScan_fast/data/whole_dataset_1.24m.csv`
 2. In Scilab, run `sweep_fast.sce` to record the baseline receiver sweep
 3. `python run_all_training.py --scilab-dir "...\SmartScan_fast"`
-4. `python dashboard_server.py` then open http://localhost:8000
+4. `python dashboard_server.py` then open local port
 
 Full instructions are in `SmartScan_ML_v2/README_STEPS.txt`.
 
