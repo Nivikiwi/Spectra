@@ -1,0 +1,72 @@
+{
+  "definitions": {
+    "LPI": "power_w < 10000 W AND agile frequency or PRI",
+    "LPD": "detectable pulse fraction < 10% (SNR >= 10 dB at the receiver)",
+    "min_pulses_to_classify": 3
+  },
+  "transmitters_total": 424,
+  "intercepted": 273,
+  "never_intercepted": 151,
+  "never_intercepted_that_are_LPD": 151,
+  "identical_transmitter_copies_across_configs": 187,
+  "lpi_cv_all_pulses": {
+    "transmitters": 273,
+    "positives": 21,
+    "roc_auc": 0.898,
+    "accuracy_pct": 94.1,
+    "precision_pct": 64.7,
+    "recall_pct": 52.4,
+    "TP": 11,
+    "FP": 6,
+    "TN": 246,
+    "FN": 10,
+    "always_no_accuracy_pct": 92.3
+  },
+  "lpi_cv_first_10_pulses": {
+    "transmitters": 273,
+    "positives": 21,
+    "roc_auc": 0.921,
+    "accuracy_pct": 93.8,
+    "precision_pct": 61.1,
+    "recall_pct": 52.4,
+    "TP": 11,
+    "FP": 7,
+    "TN": 245,
+    "FN": 10,
+    "always_no_accuracy_pct": 92.3
+  },
+  "lpd_cv_all_pulses": {
+    "transmitters": 273,
+    "positives": 30,
+    "roc_auc": 0.947,
+    "accuracy_pct": 93.8,
+    "precision_pct": 69.7,
+    "recall_pct": 76.7,
+    "TP": 23,
+    "FP": 10,
+    "TN": 233,
+    "FN": 7,
+    "always_no_accuracy_pct": 89.0
+  },
+  "lpd_cv_first_10_pulses": {
+    "transmitters": 273,
+    "positives": 30,
+    "roc_auc": 0.922,
+    "accuracy_pct": 92.3,
+    "precision_pct": 62.9,
+    "recall_pct": 73.3,
+    "TP": 22,
+    "FP": 13,
+    "TN": 230,
+    "FN": 8,
+    "always_no_accuracy_pct": 89.0
+  },
+  "final_models_trained_without_configs": [
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "final_models_training_transmitters": 126
+}

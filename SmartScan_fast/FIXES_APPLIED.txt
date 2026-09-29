@@ -1,0 +1,18 @@
+Smart Scan final fixes applied
+
+1. live_plots.sci
+   - Fixed invalid immediate_drawing value ("0n" -> "on").
+   - Explicitly keeps figure windows visible.
+   - Fixed polyline .data assignments to Nx2 matrices (not 1x2N row vectors).
+   - Kept per-figure drawnow() rendering.
+   - Safe initial plot vectors.
+
+2. main.sce
+   - Captures the returned plot_state from update_live_plots().
+   - Sets ML dwell_s correctly.
+
+3. ml_interface.sci
+   - Rebuilt ml_write_empty_observation() with exactly 25 format fields/values.
+   - Empty scans now write valid CSV rows.
+
+Do not change the dataset or receiver files.

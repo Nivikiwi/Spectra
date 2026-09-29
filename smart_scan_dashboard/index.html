@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spectra</title>
+    <link rel="stylesheet" href="css/spectra.css">
+    <script src="lib/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+
+<!-- TOP CONTROL BAR -->
+<header class="bar">
+    <div class="brand">
+        <svg width="22" height="22" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="frequency receiver">
+            <path d="M6 20 A12 12 0 0 0 22 4"/><path d="M6 20 L22 4"/><line x1="14" y1="12" x2="19" y2="7"/>
+            <line x1="11" y1="16" x2="11" y2="30"/><line x1="6" y1="30" x2="16" y2="30"/>
+            <rect x="18" y="24" width="26" height="20" rx="1.5"/>
+            <polyline points="21,38 24,38 26,31 28,40 30,34 32,38 35,28 37,38 41,38"/>
+            <line x1="11" y1="30" x2="18" y2="30"/>
+        </svg>
+        <span class="wordmark">SPECTRA</span>
+    </div>
+    <div class="controls">
+        <button id="btn-start" class="btn">START</button>
+        <button id="btn-pause" class="btn">PAUSE</button>
+        <button id="btn-reset" class="btn">RESET</button>
+        <label class="field">CONFIG <select id="sel-config"></select></label>
+        <label class="field"><span id="lbl-policy">POLICY</span>
+            <select id="sel-strategy">
+                <option value="Spectra">Spectra</option>
+                <option value="Whittle Index">Whittle Index</option>
+                <option value="Round Robin">Round Robin</option>
+            </select>
+        </label>
+        <button id="btn-compare" class="btn toggle" aria-pressed="false" title="Run all three policies side by side">COMPARE ALL: OFF</button>
+        <button id="btn-force" class="btn toggle danger" aria-pressed="false" title="Make Spectra's Tier 1 (PPO) unavailable - Tier 2 (Whittle) decides. Affects Spectra only.">FORCE PPO FAILURE</button>
+    </div>
+    <div class="status">
+        <span class="num" id="st-progress">—</span>
+        <span id="st-source">—</span>
+        <span id="st-link" class="num">LINK —</span>
+        <a class="btn" href="/api/v1/audit.xlsx" download>EXPORT XLSX</a>
+    </div>
+</header>
+<div class="msg" id="st-message">—</div>
+<div class="banner" id="force-banner" hidden>PPO forced off — every Spectra decision is made by Tier 2 (Whittle failover).</div>
+
+<!-- TABS -->
+<nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="live" role="tab">LIVE MONITOR</button>
+    <button class="tab" data-tab="log" role="tab">DECISION LOG</button>
+    <button class="tab" data-tab="compare" role="tab">STRATEGY COMPARISON</button>
+    <button class="tab" data-tab="health" role="tab">MODEL HEALTH</button>
+    <span class="tab-info" id="tab-info">—</span>
+</nav>
+
+<!-- TAB: LIVE MONITOR -->
+<section class="page active" id="page-live">
+    <div class="grid">
+        <div class="panel">
+            <div class="panel-h"><span>BAND HEATMAP</span><span class="sub" id="hm-sub">—</span></div>
+            <div id="heatmap" class="chart chart-heat"></div>
+        </div>
+        <div class="panel">
+            <div class="panel-h"><span>LIVE DECISION</span><span class="sub" id="dec-strategy">—</span></div>
+            <dl class="kv">
+                <dt>CONFIG / SCAN</dt><dd class="num" id="d-pos">—</dd>
+                <dt>TIME</dt><dd class="num" id="d-time">—</dd>
+                <dt>BAND</dt><dd class="num" id="d-band">—</dd>
+                <dt>P(TARGET)</dt><dd class="num big" id="d-p">—</dd>
+                <dt>CONFIDENCE</dt><dd class="num" id="d-conf">—</dd>
+                <dt>DWELL ASSIGNED</dt><dd class="num" id="d-dwell">—</dd>
+                <dt>DECISION</dt><dd class="num" id="d-decision">—</dd>
+                <dt>WHY</dt><dd class="num" id="d-why">—</dd>
+                <dt>FREQ MODE</dt><dd class="num" id="d-fmode">—</dd>
+                <dt>RECEIVER RESULT</dt><dd class="num" id="d-result">—</dd>
+                <dt>PULSES (PDWs)</dt><dd class="num" id="d-pdws">—</dd>
+                <dt>RECEIVER</dt><dd class="num" id="d-source">—</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="kpis">
+        <div class="tile"><div class="t-h">TRANSMITTERS FOUND</div><div class="t-v num" id="k-found">—</div><div class="t-s num" id="k-found-s">—</div><svg class="spark" id="sp-found" viewBox="0 0 100 24" preserveAspectRatio="none"></svg></div>
+        <div class="tile"><div class="t-h">TIME TO FIRST DETECTION</div><div class="t-v num" id="k-ttfd">—</div><div class="t-s num" id="k-ttfd-s">—</div></div>
+        <div class="tile"><div class="t-h">DETECTIONS</div><div class="t-v num" id="k-det">—</div><div class="t-s num" id="k-det-s">—</div><svg class="spark" id="sp-det" viewBox="0 0 100 24" preserveAspectRatio="none"></svg></div>
+        <div class="tile"><div class="t-h">DETECTION RATE (LAST 50 SCANS)</div><div class="t-v num" id="k-rate">—</div><div class="t-s num" id="k-rate-s">—</div><svg class="spark" id="sp-rate" viewBox="0 0 100 24" preserveAspectRatio="none"></svg></div>
+        <div class="tile"><div class="t-h">Pd / Pfa</div><div class="t-v num" id="k-pd">—</div><div class="t-s num" id="k-pd-s">—</div></div>
+        <div class="tile"><div class="t-h">PULSES INTERCEPTED</div><div class="t-v num" id="k-pdws">—</div><div class="t-s num" id="k-pdws-s">—</div></div>
+    </div>
+    <div class="two">
+        <div class="panel"><div class="panel-h"><span>FREQUENCY VS TIME</span><span class="sub" id="rx-ft-h">—</span></div><div id="rx-ft" class="chart"></div></div>
+        <div class="panel"><div class="panel-h"><span>GEOLOCATION (3-STATION IRSA)</span><span class="sub">live Scilab tracks</span></div><div id="rx-geo" class="chart"></div></div>
+    </div>
+</section>
+
+<!-- TAB: DECISION LOG -->
+<section class="page" id="page-log">
+    <div class="panel">
+        <div class="panel-h"><span>DECISION LOG</span><span class="sub" id="log-sub">—</span></div>
+        <div class="scroll tall">
+            <table class="tbl" id="tbl-log">
+                <thead><tr><th>CFG</th><th>SCAN</th><th>TIME s</th><th>DWELL ms</th><th>MHz</th><th>DECISION</th><th>FREQ MODE</th>
+                    <th>P(target)</th><th>CONF</th><th>RESULT</th><th>PDWs</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panel">
+        <div class="panel-h"><span>HIT / MISS</span><span class="sub">policies executed in this session</span></div>
+        <table class="tbl" id="tbl-hm">
+            <thead><tr><th>POLICY</th><th>SCANS</th><th>HIT</th><th>MISS</th><th>HIT %</th><th>TP</th><th>FP</th><th>TN</th><th>FN</th><th>TRANSMITTERS</th><th>MEAN DWELL</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</section>
+
+<!-- TAB: STRATEGY COMPARISON -->
+<section class="page" id="page-compare">
+    <div class="panel">
+        <div class="note" id="cmp-note">—</div>
+        <div class="cmp-h">THIS SESSION: UNSEEN CONFIGURATIONS (COMPARE ALL MODE)</div><table class="tbl cmp" id="cmp-unseen"></table>
+        <div class="cmp-h">THIS SESSION: TRAINING CONFIGURATIONS (NOT A FAIR TEST)</div><table class="tbl cmp" id="cmp-train"></table>
+        <div class="cmp-h">THIS SESSION: PER CONFIGURATION (TRANSMITTERS FOUND / DETECTIONS)</div><table class="tbl cmp" id="cmp-per"></table>
+        <div class="cmp-h">ALL ALGORITHMS ON UNSEEN CONFIGURATIONS (STEP 7 REPORT)</div><div class="scroll"><table class="tbl cmp" id="cmp-algos"></table></div>
+    </div>
+</section>
+
+<!-- TAB: MODEL HEALTH -->
+<section class="page" id="page-health">
+    <div class="two">
+        <div class="panel">
+            <div class="panel-h"><span>SPECTRA MODEL TIERS</span><span class="sub">T1 = PPO (Spectra), T2 = Whittle failover inside the Spectra run</span></div>
+            <table class="tbl" id="tbl-tiers">
+                <thead><tr><th>TIER</th><th>MODEL</th><th>DECISIONS</th><th>SHARE</th></tr></thead>
+                <tbody></tbody>
+            </table>
+            <div class="note num" id="tier-note">—</div>
+        </div>
+        <div class="panel">
+            <div class="panel-h"><span>DECISION TIME</span><span class="sub">Spectra, per decision</span></div>
+            <dl class="kv">
+                <dt>DECISIONS</dt><dd class="num" id="h-n">—</dd>
+                <dt>MEAN</dt><dd class="num" id="h-mean">—</dd>
+                <dt>95th PERCENTILE</dt><dd class="num" id="h-p95">—</dd>
+                <dt>MAX</dt><dd class="num" id="h-max">—</dd>
+                <dt>PPO TIMEOUT</dt><dd class="num" id="h-timeout">—</dd>
+                <dt>RECEIVERS</dt><dd class="num" id="h-rx">—</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="panel">
+        <div class="panel-h"><span>FAILOVER EVENTS</span><span class="sub">PPO did not answer in time or failed -> Whittle decided that scan</span></div>
+        <div class="scroll">
+            <table class="tbl" id="tbl-fail">
+                <thead><tr><th>CLOCK</th><th>CONFIG</th><th>SCAN</th><th>SIM TIME s</th><th>REASON CODE</th><th>DECISION</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panel">
+        <div class="panel-h"><span>LPI / LPD CLASSIFIER</span><span class="sub" id="lpi-note">—</span></div>
+        <div class="scroll">
+            <table class="tbl" id="tbl-lpi">
+                <thead><tr><th>TRANSMITTER</th><th>PULSES</th><th>FREQ MODE</th><th>P(LPI)</th><th>LPI</th><th>TRUE</th><th>P(LPD)</th><th>LPD</th><th>TRUE</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="panel">
+        <div class="panel-h"><span>EVENT LOG</span></div>
+        <div class="scroll"><pre class="events num" id="events">—</pre></div>
+    </div>
+</section>
+
+<script src="js/spectra.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "reward": {
+    "discovery": 1.0,
+    "repeat_hit": 1.0
+  },
+  "train_configs": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "validation_configs": [
+    5,
+    6
+  ],
+  "seeds_tried": 3,
+  "chosen_seed": 2042,
+  "validation_transmitters_found": 17,
+  "timesteps": 60000,
+  "candidates_K": 8,
+  "obs_dim": 73,
+  "seconds": 561.2
+}

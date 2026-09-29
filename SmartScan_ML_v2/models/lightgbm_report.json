@@ -1,0 +1,66 @@
+{
+  "train_configs": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "validation_config": 6,
+  "test_configs": [
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "trees": 111,
+  "features": [
+    "centre_ghz",
+    "log_age",
+    "never_scanned",
+    "last_hit",
+    "last_snr_db",
+    "log_last_pdws",
+    "hit_rate_s",
+    "log_scans",
+    "log_hits",
+    "nbr_recent_hit",
+    "nbr_hit_rate",
+    "global_recent_hit_rate",
+    "log_since_hit",
+    "log_last_hit_gap",
+    "hit_cycle_phase"
+  ],
+  "validation": {
+    "rows": 81051,
+    "positives": 9867,
+    "roc_auc": 0.8903,
+    "log_loss": 0.03452
+  },
+  "test": {
+    "rows": 258253,
+    "positives": 22914,
+    "roc_auc": 0.9524,
+    "log_loss": 0.02096
+  },
+  "feature_importance_gain": {
+    "centre_ghz": 1158743.8,
+    "log_since_hit": 160860.7,
+    "log_age": 50980.8,
+    "nbr_hit_rate": 48771.6,
+    "nbr_recent_hit": 34578.8,
+    "global_recent_hit_rate": 30707.5,
+    "hit_rate_s": 20243.3,
+    "log_scans": 15225.9,
+    "last_snr_db": 11215.1,
+    "hit_cycle_phase": 1094.7,
+    "log_hits": 880.3,
+    "log_last_hit_gap": 300.8,
+    "log_last_pdws": 267.0,
+    "last_hit": 125.2,
+    "never_scanned": 50.0
+  }
+}
