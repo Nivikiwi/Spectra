@@ -1,7 +1,3 @@
-# Smart Scan Strategy - Frontend Prototype
-
-This version preserves the existing dark technical UI and adds the requested software behavior.
-
 ## Changes
 
 - Simulation Control now contains a synthetic MAB (Multi-Armed Bandit) simulator panel.
